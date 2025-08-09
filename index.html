@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fantasy Football Draft - Best Players</title>
+
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<h2>Fantasy Football Draft - Best Player Picks</h2>
+
+<label for="positionFilter">Filter by Position:</label>
+<select id="positionFilter" onchange="filterTable()">
+  <option value="all">All</option>
+  <option value="WR">WR</option>
+  <option value="RB">RB</option>
+  <option value="QB">QB</option>
+  <option value="TE">TE</option>
+  <option value="DEF">DEF</option>
+  <option value="K">K</option>
+</select>
+
+<table id="playersTable">
+  <thead>
+    <tr>
+      <th>Avg ADP</th>
+      <th>Position</th>
+      <th>Player</th>
+      <th>Team</th>
+      <th>Underdog</th>
+      <th>CBS</th>
+      <th>ESPN</th>
+      <th>FFPC</th>
+      <th>BB10s</th>
+      <th>Y!</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Rows loaded dynamically -->
+  </tbody>
+</table>
+
+<script src="script.js"></script>
+
+</body>
+</html>
