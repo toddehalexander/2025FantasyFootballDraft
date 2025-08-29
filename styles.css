@@ -1,82 +1,218 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
       Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     background: #f9fafb;
     color: #222;
-    margin: 20px;
-  }
-  
-  h2 {
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
     text-align: center;
     font-weight: 700;
-    margin-bottom: 15px;
-  }
-  
-  label {
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.controls {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+label {
     font-weight: 600;
     font-size: 1rem;
-    margin-right: 10px;
-  }
-  
-  select {
-    padding: 6px 10px;
+}
+
+select {
+    padding: 8px 12px;
     font-size: 1rem;
     border-radius: 6px;
     border: 1.5px solid #ccc;
     transition: border-color 0.3s ease;
     outline-offset: 2px;
-  }
-  
-  select:focus {
+    background: white;
+    min-width: 120px;
+}
+
+select:focus {
     border-color: #4caf50;
     outline: none;
-  }
-  
-  table {
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: white;
+}
+
+table {
     border-collapse: separate;
     border-spacing: 0;
     width: 100%;
-    margin-top: 15px;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    background: white;
-  }
-  
-  th, td {
-    padding: 12px 15px;
+    min-width: 800px;
+}
+
+th, td {
+    padding: 12px 8px;
     text-align: left;
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     border-bottom: 1px solid #e0e0e0;
-  }
-  
-  th {
+}
+
+th {
     background-color: #f5f7fa;
     font-weight: 700;
-    font-size: 1rem;
     color: #555;
     user-select: none;
-  }
-  
-  tbody tr {
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+th:hover {
+    background-color: #e8f5e8;
+}
+
+th.sortable::after {
+    content: ' ↕';
+    color: #ccc;
+    font-size: 0.8rem;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+th.sort-asc::after {
+    content: ' ↑';
+    color: #4caf50;
+}
+
+th.sort-desc::after {
+    content: ' ↓';
+    color: #4caf50;
+}
+
+tbody tr {
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  tbody tr:hover:not(.drafted) {
+}
+
+tbody tr:hover:not(.drafted) {
     background-color: #f0f9f4;
     cursor: pointer;
-  }
-  
-  tbody tr.drafted {
+}
+
+tbody tr.drafted {
     background-color: #d3d3d3 !important;
     color: #555;
-  }
-  
-  tbody tr.best-available {
+}
+
+tbody tr.best-available {
     background-color: #e6ffe6 !important;
     box-shadow: 0 0 12px 4px #4caf50aa;
     color: #2e7d32;
     font-weight: 600;
-  }
-  
+}
+
+.adp-col {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.position-col {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #7f8c8d;
+}
+
+.player-col {
+    font-weight: 600;
+    color: #2c3e50;
+    min-width: 150px;
+}
+
+.team-col {
+    font-weight: 500;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.ranking-col {
+    text-align: center;
+    font-weight: 500;
+    width: 60px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    select {
+        width: 100%;
+    }
+    
+    th, td {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+    }
+    
+    .player-col {
+        min-width: 120px;
+    }
+    
+    .ranking-col {
+        width: 45px;
+    }
+}
+
+@media (max-width: 480px) {
+    table {
+        min-width: 600px;
+    }
+    
+    th, td {
+        padding: 6px 3px;
+        font-size: 0.75rem;
+    }
+    
+    .player-col {
+        min-width: 100px;
+    }
+    
+    .ranking-col {
+        width: 40px;
+    }
+}
+
+/* Loading state */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
