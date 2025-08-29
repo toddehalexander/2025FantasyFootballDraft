@@ -6,46 +6,540 @@
 <title>Fantasy Football Draft - Best Players</title>
 
 <!-- Google Fonts: Inter -->
-<link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-<link rel="stylesheet" href="styles.css" />
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+      Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background: #f9fafb;
+    color: #222;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.controls {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+label {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+select {
+    padding: 8px 12px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1.5px solid #ccc;
+    transition: border-color 0.3s ease;
+    outline-offset: 2px;
+    background: white;
+    min-width: 120px;
+}
+
+select:focus {
+    border-color: #4caf50;
+    outline: none;
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background: white;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    min-width: 800px;
+}
+
+th, td {
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+    background-color: #f5f7fa;
+    font-weight: 700;
+    color: #555;
+    user-select: none;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+th:hover {
+    background-color: #e8f5e8;
+}
+
+th.sortable::after {
+    content: ' ↕';
+    color: #ccc;
+    font-size: 0.8rem;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+th.sort-asc::after {
+    content: ' ↑';
+    color: #4caf50;
+}
+
+th.sort-desc::after {
+    content: ' ↓';
+    color: #4caf50;
+}
+
+tbody tr {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+tbody tr:hover:not(.drafted) {
+    background-color: #f0f9f4;
+    cursor: pointer;
+}
+
+tbody tr.drafted {
+    background-color: #d3d3d3 !important;
+    color: #555;
+}
+
+tbody tr.best-available {
+    background-color: #e6ffe6 !important;
+    box-shadow: 0 0 12px 4px #4caf50aa;
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.adp-col {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.position-col {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #7f8c8d;
+}
+
+.player-col {
+    font-weight: 600;
+    color: #2c3e50;
+    min-width: 150px;
+}
+
+.team-col {
+    font-weight: 500;
+    color: #7f8c8d;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.ranking-col {
+    text-align: center;
+    font-weight: 500;
+    width: 60px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    select {
+        width: 100%;
+    }
+    
+    th, td {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+    }
+    
+    .player-col {
+        min-width: 120px;
+    }
+    
+    .ranking-col {
+        width: 45px;
+    }
+}
+
+@media (max-width: 480px) {
+    table {
+        min-width: 600px;
+    }
+    
+    th, td {
+        padding: 6px 3px;
+        font-size: 0.75rem;
+    }
+    
+    .player-col {
+        min-width: 100px;
+    }
+    
+    .ranking-col {
+        width: 40px;
+    }
+}
+
+/* Loading state */
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+</style>
 </head>
 <body>
 
-<h2>Fantasy Football Draft - Best Player Picks</h2>
+<h1>Fantasy Football Rankings</h1>
 
-<label for="positionFilter">Filter by Position:</label>
-<select id="positionFilter" onchange="filterTable()">
-  <option value="all">All</option>
-  <option value="WR">WR</option>
-  <option value="RB">RB</option>
-  <option value="QB">QB</option>
-  <option value="TE">TE</option>
-  <option value="DEF">DEF</option>
-  <option value="K">K</option>
-</select>
+<div class="controls">
+    <label for="positionFilter">Filter by Position:</label>
+    <select id="positionFilter" onchange="filterTable()">
+      <option value="all">All Positions</option>
+      <option value="WR">WR</option>
+      <option value="RB">RB</option>
+      <option value="QB">QB</option>
+      <option value="TE">TE</option>
+      <option value="DEF">DEF</option>
+      <option value="K">K</option>
+    </select>
+</div>
 
-<table id="playersTable">
-  <thead>
-    <tr>
-      <th>Avg ADP</th>
-      <th>Position</th>
-      <th>Player</th>
-      <th>Team</th>
-      <th>Underdog</th>
-      <th>CBS</th>
-      <th>ESPN</th>
-      <th>FFPC</th>
-      <th>BB10s</th>
-      <th>Y!</th>
-    </tr>
-  </thead>
-  <tbody>
-    <!-- Rows loaded dynamically -->
-  </tbody>
-</table>
+<div class="table-container">
+    <table id="playersTable">
+      <thead>
+        <tr>
+          <th class="sortable" data-sort="adp">Avg ADP</th>
+          <th class="sortable" data-sort="position">Position</th>
+          <th class="sortable" data-sort="player">Player</th>
+          <th class="sortable" data-sort="team">Team</th>
+          <th class="sortable" data-sort="underdog">Underdog</th>
+          <th class="sortable" data-sort="cbs">CBS</th>
+          <th class="sortable" data-sort="espn">ESPN</th>
+          <th class="sortable" data-sort="ffpc">FFPC</th>
+          <th class="sortable" data-sort="bb10s">BB10s</th>
+          <th class="sortable" data-sort="yahoo">Y!</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="10" class="loading">Loading players...</td></tr>
+      </tbody>
+    </table>
+</div>
 
-<script src="script.js"></script>
+<script>
+const draftedPlayers = new Set();
+let playersData = [];
+let currentSort = { column: 'adp', direction: 'asc' };
+
+function toggleDrafted(playerName) {
+  if (draftedPlayers.has(playerName)) {
+    draftedPlayers.delete(playerName);
+  } else {
+    draftedPlayers.add(playerName);
+  }
+  updateRowHighlights();
+}
+
+function updateRowHighlights() {
+  const table = document.getElementById("playersTable");
+  const rows = table.tBodies[0].rows;
+
+  let bestPlayerRow = null;
+  let bestPlayerADP = Infinity;
+
+  for (const row of rows) {
+    if (row.style.display === "none" || row.querySelector('.loading')) {
+      continue;
+    }
+
+    const playerName = row.cells[2].textContent;
+    const adpText = row.cells[0].textContent;
+    const adp = parseFloat(adpText);
+
+    if (draftedPlayers.has(playerName)) {
+      row.classList.add('drafted');
+      row.classList.remove('best-available');
+      row.style.cursor = 'default';
+    } else {
+      row.classList.remove('drafted');
+      row.style.cursor = 'pointer';
+
+      if (!isNaN(adp) && adp < bestPlayerADP) {
+        bestPlayerADP = adp;
+        bestPlayerRow = row;
+      }
+    }
+  }
+
+  // Clear all best-available highlights first
+  for (const row of rows) {
+    row.classList.remove('best-available');
+  }
+  // Highlight best available player
+  if (bestPlayerRow) {
+    bestPlayerRow.classList.add('best-available');
+  }
+}
+
+function addRowClickListeners() {
+  const table = document.getElementById("playersTable");
+  const rows = table.tBodies[0].rows;
+
+  for (const row of rows) {
+    if (row.querySelector('.loading')) continue;
+    
+    row.onclick = () => {
+      const playerName = row.cells[2].textContent;
+      toggleDrafted(playerName);
+    };
+  }
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    
+    if (char === '"' && (i === 0 || line[i-1] === ',')) {
+      inQuotes = true;
+    } else if (char === '"' && inQuotes && (i === line.length - 1 || line[i+1] === ',')) {
+      inQuotes = false;
+    } else if (char === ',' && !inQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  result.push(current.trim());
+  return result;
+}
+
+function sortTable(column) {
+  // Update sort direction
+  if (currentSort.column === column) {
+    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSort.column = column;
+    currentSort.direction = 'asc';
+  }
+
+  // Update header indicators
+  const headers = document.querySelectorAll('th.sortable');
+  headers.forEach(header => {
+    header.classList.remove('sort-asc', 'sort-desc');
+    if (header.dataset.sort === column) {
+      header.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+  });
+
+  // Sort data
+  playersData.sort((a, b) => {
+    let aVal = a[column];
+    let bVal = b[column];
+
+    // Handle numeric columns
+    if (column === 'adp' || column === 'underdog' || column === 'cbs' || column === 'espn' || column === 'ffpc' || column === 'bb10s' || column === 'yahoo') {
+      aVal = parseFloat(aVal) || 999;
+      bVal = parseFloat(bVal) || 999;
+    } else {
+      // String comparison
+      aVal = String(aVal).toLowerCase();
+      bVal = String(bVal).toLowerCase();
+    }
+
+    if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.querySelector('#playersTable tbody');
+  tbody.innerHTML = '';
+
+  playersData.forEach(player => {
+    const tr = document.createElement('tr');
+
+    // Add average ADP
+    const tdADP = document.createElement('td');
+    tdADP.className = 'adp-col';
+    tdADP.textContent = player.adp === 999 ? '' : player.adp.toFixed(2);
+    tr.appendChild(tdADP);
+
+    // Add position
+    const tdPos = document.createElement('td');
+    tdPos.className = 'position-col';
+    tdPos.textContent = player.position;
+    tr.appendChild(tdPos);
+
+    // Add player name
+    const tdPlayer = document.createElement('td');
+    tdPlayer.className = 'player-col';
+    tdPlayer.textContent = player.player;
+    tr.appendChild(tdPlayer);
+
+    // Add team
+    const tdTeam = document.createElement('td');
+    tdTeam.className = 'team-col';
+    tdTeam.textContent = player.team;
+    tr.appendChild(tdTeam);
+
+    // Add ranking columns
+    ['underdog', 'cbs', 'espn', 'ffpc', 'bb10s', 'yahoo'].forEach(key => {
+      const td = document.createElement('td');
+      td.className = 'ranking-col';
+      td.textContent = player[key] || '-';
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  addRowClickListeners();
+  filterTable();
+}
+
+async function loadCSV() {
+  try {
+    // Load CSV from file
+    const response = await fetch('data/adp.csv');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const csvText = await response.text();
+    const lines = csvText.trim().split('\n');
+    playersData = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseCSVLine(lines[i]);
+
+      // Extract rankings to compute average ADP
+      const rankingColumns = [14, 4, 5, 7, 12, 11]; // Underdog, CBS, ESPN, FFPC, BB10s, Y!
+      const ranks = rankingColumns.map(idx => {
+        const val = cols[idx];
+        return val && val !== '-' && val !== '' ? parseFloat(val) : null;
+      }).filter(v => v !== null && !isNaN(v));
+
+      const averageADP = ranks.length > 0 
+        ? (ranks.reduce((a,b) => a + b, 0) / ranks.length)
+        : 999;
+
+      const playerData = {
+        adp: averageADP,
+        position: cols[1] || '',
+        player: cols[2] || '',
+        team: cols[3] || '',
+        underdog: cols[14] || '',
+        cbs: cols[4] || '',
+        espn: cols[5] || '',
+        ffpc: cols[7] || '',
+        bb10s: cols[12] || '',
+        yahoo: cols[11] || ''
+      };
+
+      playersData.push(playerData);
+    }
+
+    // Set initial sort state and sort by ADP (ascending - lowest first)
+    currentSort = { column: 'adp', direction: 'descending' };
+
+    // Update header to show initial sort
+    const adpHeader = document.querySelector('th[data-sort="adp"]');
+    adpHeader.classList.add('sort-asc');
+    
+    // Sort by ADP initially
+    sortTable('adp');
+    
+  } catch (error) {
+    console.error('Error loading CSV:', error);
+    const tbody = document.querySelector('#playersTable tbody');
+    tbody.innerHTML = '<tr><td colspan="10" class="loading">Error loading data. Please check that data/adp.csv exists.</td></tr>';
+  }
+}
+
+function filterTable() {
+  const filter = document.getElementById("positionFilter").value.toUpperCase();
+  const table = document.getElementById("playersTable");
+  const trs = table.tBodies[0].getElementsByTagName("tr");
+
+  for (let i = 0; i < trs.length; i++) {
+    if (trs[i].querySelector('.loading')) continue;
+    
+    const pos = trs[i].cells[1].textContent || trs[i].cells[1].innerText;
+    const posPrefix = pos.split('-')[0].toUpperCase();
+
+    if (filter === "ALL" || posPrefix === filter) {
+      trs[i].style.display = "";
+    } else {
+      trs[i].style.display = "none";
+    }
+  }
+  updateRowHighlights();
+}
+
+// Add click listeners to table headers
+document.addEventListener('DOMContentLoaded', function() {
+  const headers = document.querySelectorAll('th.sortable');
+  headers.forEach(header => {
+    header.addEventListener('click', () => {
+      const column = header.dataset.sort;
+      sortTable(column);
+    });
+  });
+});
+
+window.onload = loadCSV;
+</script>
 
 </body>
 </html>
